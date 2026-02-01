@@ -6,6 +6,7 @@ import { map } from 'rxjs';
 import { HealthService, StepEntry } from './health.service';
 
 type SummaryRow = {
+  key: string;
   label: string;
   total: number;
 };
@@ -196,41 +197,58 @@ export class StepsPageComponent {
   });
 
   weeklyRows = computed(() => {
-    const weekly = new Map<string, number>();
+    const weekly = new Map<string, SummaryRow>();
     this.stepsSignal().forEach((entry) => {
       const date = this.parseDate(entry.entry_date);
-      const weekLabel = this.formatDate(this.startOfWeekMonday(date));
-      weekly.set(weekLabel, (weekly.get(weekLabel) ?? 0) + entry.steps);
+      const weekStart = this.startOfWeekMonday(date);
+      const weekKey = weekStart.toISOString().slice(0, 10);
+      const weekLabel = this.formatDate(weekStart);
+      const current = weekly.get(weekKey);
+      weekly.set(weekKey, {
+        key: weekKey,
+        label: weekLabel,
+        total: (current?.total ?? 0) + entry.steps,
+      });
     });
     return this.toRows(weekly);
   });
 
   monthlyRows = computed(() => {
-    const monthly = new Map<string, number>();
+    const monthly = new Map<string, SummaryRow>();
     this.stepsSignal().forEach((entry) => {
       const date = this.parseDate(entry.entry_date);
+      const monthKey = `${date.getFullYear()}-${this.pad(date.getMonth() + 1)}`;
       const monthLabel = date.toLocaleString(undefined, { month: 'long', year: 'numeric' });
-      monthly.set(monthLabel, (monthly.get(monthLabel) ?? 0) + entry.steps);
+      const current = monthly.get(monthKey);
+      monthly.set(monthKey, {
+        key: monthKey,
+        label: monthLabel,
+        total: (current?.total ?? 0) + entry.steps,
+      });
     });
     return this.toRows(monthly);
   });
 
   yearlyRows = computed(() => {
-    const yearly = new Map<string, number>();
+    const yearly = new Map<string, SummaryRow>();
     this.stepsSignal().forEach((entry) => {
       const date = this.parseDate(entry.entry_date);
-      const yearLabel = `${date.getFullYear()}`;
-      yearly.set(yearLabel, (yearly.get(yearLabel) ?? 0) + entry.steps);
+      const yearKey = `${date.getFullYear()}`;
+      const current = yearly.get(yearKey);
+      yearly.set(yearKey, {
+        key: yearKey,
+        label: yearKey,
+        total: (current?.total ?? 0) + entry.steps,
+      });
     });
     return this.toRows(yearly);
   });
 
   constructor(private readonly healthService: HealthService) {}
 
-  private toRows(map: Map<string, number>): SummaryRow[] {
-    return Array.from(map.entries())
-      .map(([label, total]) => ({ label, total }))
-      .sort((a, b) => a.label.localeCompare(b.label))
+  private toRows(map: Map<string, SummaryRow>): SummaryRow[] {
+    return Array.from(map.values())
+      .sort((a, b) => a.key.localeCompare(b.key))
       .reverse();
   }
 
@@ -252,5 +270,9 @@ export class StepsPageComponent {
 
   private formatDate(date: Date): string {
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  private pad(value: number): string {
+    return `${value}`.padStart(2, '0');
   }
 }
