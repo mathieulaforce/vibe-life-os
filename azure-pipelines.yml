@@ -1,0 +1,157 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - "*"
+
+variables:
+  nodeVersion: "20.x"
+  pythonVersion: "3.11"
+
+stages:
+  - stage: validate
+    displayName: Validate
+    jobs:
+      - job: lint
+        displayName: Lint and format
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(nodeVersion)
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: $(pythonVersion)
+          - task: Cache@2
+            inputs:
+              key: 'npm | "$(Agent.OS)" | package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: $(Pipeline.Workspace)/.npm
+          - task: Cache@2
+            inputs:
+              key: 'pip | "$(Agent.OS)" | apps/api/requirements.txt'
+              restoreKeys: |
+                pip | "$(Agent.OS)"
+              path: $(Pipeline.Workspace)/.pip
+          - task: Cache@2
+            inputs:
+              key: 'turbo | "$(Agent.OS)" | turbo.json'
+              restoreKeys: |
+                turbo | "$(Agent.OS)"
+              path: $(Pipeline.Workspace)/.turbo
+          - script: ./scripts/verify-lockfiles.sh
+            displayName: Verify lockfiles
+          - script: npm install
+            displayName: Install Node dependencies
+          - script: npm run lint
+            displayName: Lint
+          - script: npm run format
+            displayName: Format check
+
+  - stage: test
+    displayName: Test
+    dependsOn: validate
+    jobs:
+      - job: test
+        displayName: Run tests
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(nodeVersion)
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: $(pythonVersion)
+          - task: Cache@2
+            inputs:
+              key: 'npm | "$(Agent.OS)" | package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: $(Pipeline.Workspace)/.npm
+          - task: Cache@2
+            inputs:
+              key: 'pip | "$(Agent.OS)" | apps/api/requirements.txt'
+              restoreKeys: |
+                pip | "$(Agent.OS)"
+              path: $(Pipeline.Workspace)/.pip
+          - task: Cache@2
+            inputs:
+              key: 'turbo | "$(Agent.OS)" | turbo.json'
+              restoreKeys: |
+                turbo | "$(Agent.OS)"
+              path: $(Pipeline.Workspace)/.turbo
+          - script: npm install
+            displayName: Install Node dependencies
+          - script: python -m pip install --upgrade pip
+            displayName: Upgrade pip
+          - script: pip install -r apps/api/requirements.txt
+            displayName: Install Python dependencies
+          - script: npm run test
+            displayName: Frontend tests
+          - script: pytest -q apps/api/tests
+            displayName: Backend tests
+
+  - stage: build
+    displayName: Build
+    dependsOn: test
+    jobs:
+      - job: build
+        displayName: Build artifacts
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(nodeVersion)
+          - task: Cache@2
+            inputs:
+              key: 'npm | "$(Agent.OS)" | package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: $(Pipeline.Workspace)/.npm
+          - task: Cache@2
+            inputs:
+              key: 'turbo | "$(Agent.OS)" | turbo.json'
+              restoreKeys: |
+                turbo | "$(Agent.OS)"
+              path: $(Pipeline.Workspace)/.turbo
+          - script: npm install
+            displayName: Install Node dependencies
+          - script: npm run build
+            displayName: Build
+
+  - stage: package
+    displayName: Package
+    dependsOn: build
+    jobs:
+      - job: docker
+        displayName: Build Docker images
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - script: |
+              docker build -t lifeos-api:$(Build.SourceVersion) ./apps/api
+              docker build -t lifeos-web:$(Build.SourceVersion) ./apps/web
+            displayName: Docker build
+
+  - stage: deploy
+    displayName: Deploy
+    dependsOn: package
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Deploy'], 'true'))
+    jobs:
+      - deployment: deploy
+        displayName: Deploy placeholder
+        environment: production
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - script: echo "Deployment steps go here"
+                  displayName: Deploy

@@ -1,0 +1,38 @@
+{
+  "name": "lifeos-web",
+  "private": true,
+  "scripts": {
+    "dev": "ng serve --host 0.0.0.0 --port ${WEB_PORT:-4200}",
+    "build": "ng build",
+    "lint": "ng lint",
+    "test": "ng test --watch=false",
+    "format": "prettier --check ."
+  },
+  "dependencies": {
+    "@angular/animations": "latest",
+    "@angular/common": "latest",
+    "@angular/compiler": "latest",
+    "@angular/core": "latest",
+    "@angular/forms": "latest",
+    "@angular/platform-browser": "latest",
+    "@angular/platform-browser-dynamic": "latest",
+    "@angular/router": "latest",
+    "rxjs": "latest",
+    "tslib": "latest",
+    "zone.js": "latest"
+  },
+  "devDependencies": {
+    "@angular/cli": "latest",
+    "@angular/compiler-cli": "latest",
+    "@angular-eslint/builder": "latest",
+    "@angular-eslint/eslint-plugin": "latest",
+    "@angular-eslint/eslint-plugin-template": "latest",
+    "@angular-eslint/template-parser": "latest",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "@types/node": "latest",
+    "eslint": "latest",
+    "prettier": "latest",
+    "typescript": "latest"
+  }
+}
