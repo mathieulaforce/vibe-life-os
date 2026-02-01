@@ -23,6 +23,7 @@
     "zone.js": "latest"
   },
   "devDependencies": {
+    "@angular-devkit/build-angular": "latest",
     "@angular/cli": "latest",
     "@angular/compiler-cli": "latest",
     "@angular-eslint/builder": "latest",

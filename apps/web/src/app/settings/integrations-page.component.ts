@@ -65,7 +65,7 @@ export class IntegrationsPageComponent implements OnInit {
   }
 
   private refresh(): void {
-    this.healthService.listIntegrations().subscribe((integrations) => {
+    this.healthService.listIntegrations().subscribe((integrations: IntegrationStatus[]) => {
       const map = new Map(integrations.map((item) => [item.provider, item]));
       this.integrations = this.integrations.map((item) => map.get(item.provider) ?? item);
     });
