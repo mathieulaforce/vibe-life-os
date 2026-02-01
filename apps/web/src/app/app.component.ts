@@ -1,18 +1,19 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   template: `
     <header class="app-header">
       <div class="brand">LifeOS</div>
-      <nav>
-        <a routerLink="/">Home</a>
-        <a routerLink="/health/weight">Weight</a>
-        <a routerLink="/health/steps">Steps</a>
-        <a routerLink="/settings/integrations">Integrations</a>
+      <nav class="app-nav" aria-label="Primary">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          Home
+        </a>
+        <a routerLink="/health/weight" routerLinkActive="active">Weight</a>
+        <a routerLink="/settings/integrations" routerLinkActive="active">Integrations</a>
       </nav>
     </header>
     <router-outlet />
