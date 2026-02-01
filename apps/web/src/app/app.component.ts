@@ -11,6 +11,7 @@ import { RouterOutlet } from '@angular/router';
       <nav>
         <a routerLink="/">Home</a>
         <a routerLink="/health/weight">Weight</a>
+        <a routerLink="/health/steps">Steps</a>
         <a routerLink="/settings/integrations">Integrations</a>
       </nav>
     </header>

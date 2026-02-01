@@ -18,6 +18,12 @@ export interface IntegrationStatus {
   last_sync_at?: string | null;
 }
 
+export interface StepEntry {
+  entry_date: string;
+  steps: number;
+  source: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class HealthService {
   private readonly http = inject(HttpClient);
@@ -25,6 +31,10 @@ export class HealthService {
 
   listWeights(days = 30) {
     return this.http.get<WeightEntry[]>(`${this.baseUrl}/weights?days=${days}`);
+  }
+
+  listSteps(days = 365) {
+    return this.http.get<StepEntry[]>(`${this.baseUrl}/steps?days=${days}`);
   }
 
   saveWeight(payload: { entry_date?: string; weight_kg: number; goal_kg?: number | null }) {
