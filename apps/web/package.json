@@ -17,6 +17,7 @@
     "@angular/platform-browser": "latest",
     "@angular/platform-browser-dynamic": "latest",
     "@angular/router": "latest",
+    "echarts": "latest",
     "rxjs": "latest",
     "tslib": "latest",
     "zone.js": "latest"

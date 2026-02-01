@@ -10,6 +10,16 @@ import { Component } from '@angular/core';
         A domain-driven platform for personal operating systems. This is a placeholder shell
         waiting for product requirements.
       </p>
+      <section class="home-actions">
+        <a class="action-card" href="/health/weight">
+          <h2>Weight Tracking</h2>
+          <p>View weight history, goal progress, and sync status with Garmin Connect.</p>
+        </a>
+        <a class="action-card" href="/settings/integrations">
+          <h2>Integrations</h2>
+          <p>Connect Garmin Connect and Strava to sync data into LifeOS.</p>
+        </a>
+      </section>
     </main>
   `,
 })

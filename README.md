@@ -26,3 +26,4 @@ Azure Pipelines runs `lint`, `format`, `test`, `build`, and Docker image packagi
 
 - Lockfiles are enforced in CI via `scripts/verify-lockfiles.sh`. Generate `package-lock.json` (or pnpm/yarn lockfiles) before running CI.
 - The Angular app and Python API are minimal shells awaiting product requirements.
+- Health domain currently supports weight tracking with a stubbed Garmin/Strava integration flow.
