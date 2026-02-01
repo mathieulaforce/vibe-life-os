@@ -15,6 +15,10 @@ import { Component } from '@angular/core';
           <h2>Weight Tracking</h2>
           <p>View weight history, goal progress, and sync status with Garmin Connect.</p>
         </a>
+        <a class="action-card" href="/health/steps">
+          <h2>Steps Analysis</h2>
+          <p>Track daily, weekly, monthly, and yearly steps from Garmin Connect.</p>
+        </a>
         <a class="action-card" href="/settings/integrations">
           <h2>Integrations</h2>
           <p>Connect Garmin Connect and Strava to sync data into LifeOS.</p>

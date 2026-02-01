@@ -11,9 +11,10 @@ from sqlalchemy.orm import Session
 
 from src.application.health_service import HealthService
 from src.application.integration_service import IntegrationService
+from src.application.steps_service import StepsService
 from src.application.weight_service import WeightService
 from src.infrastructure.database import Base, ENGINE, SessionLocal
-from src.infrastructure.models import Integration, WeightEntry
+from src.infrastructure.models import Integration, StepEntry, WeightEntry
 
 load_dotenv()
 
@@ -124,6 +125,25 @@ def list_weights(days: int = 30, session: Session = Depends(get_session)) -> lis
             "entry_date": entry.entry_date.isoformat(),
             "weight_kg": entry.weight_kg,
             "goal_kg": entry.goal_kg,
+            "source": entry.source,
+        }
+        for entry in sorted(by_date.values(), key=lambda item: item.entry_date)
+    ]
+
+
+@app.get("/steps")
+def list_steps(days: int = 365, session: Session = Depends(get_session)) -> list[dict]:
+    service = StepsService(session)
+    entries = service.list_steps(days=days)
+    by_date: dict[date, StepEntry] = {}
+    for entry in entries:
+        current = by_date.get(entry.entry_date)
+        if current is None or entry.source == "garmin":
+            by_date[entry.entry_date] = entry
+    return [
+        {
+            "entry_date": entry.entry_date.isoformat(),
+            "steps": entry.steps,
             "source": entry.source,
         }
         for entry in sorted(by_date.values(), key=lambda item: item.entry_date)

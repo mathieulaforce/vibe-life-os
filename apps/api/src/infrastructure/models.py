@@ -28,3 +28,14 @@ class WeightEntry(Base):
     goal_kg: Mapped[float | None] = mapped_column(Float)
     source: Mapped[str] = mapped_column(String(32), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+
+
+class StepEntry(Base):
+    __tablename__ = "steps"
+    __table_args__ = (UniqueConstraint("entry_date", "source", name="uq_steps_date_source"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    entry_date: Mapped[date] = mapped_column(Date, nullable=False)
+    steps: Mapped[int] = mapped_column(Integer, nullable=False)
+    source: Mapped[str] = mapped_column(String(32), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
